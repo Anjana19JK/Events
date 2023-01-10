@@ -3,6 +3,13 @@ import EventItem from '../EventItem'
 import ActiveEventRegistrationDetails from '../ActiveEventRegistrationDetails'
 import './index.css'
 
+const apiStatusConstants = {
+  initial: 'INITIAL',
+  toRegistered: 'YET_TO_REGISTER',
+  registered: 'REGISTERED',
+  closed: 'REGISTRATIONS_CLOSED',
+}
+
 const eventsList = [
   {
     id: 'f9bb2373-b80e-46b8-8219-f07217b9f3ce',
@@ -54,18 +61,89 @@ const eventsList = [
 ]
 
 class Events extends Component {
+  state = {
+    apiStatus: apiStatusConstants.initial,
+    activeEvent: '',
+  }
+
+  renderToRegister = () => (
+    <>
+      <img
+        src="https://assets.ccbp.in/frontend/react-js/events-register-img.png"
+        alt="yet to register"
+      />
+      <p>
+        A live performance brings so much to your relationship with dance.Seeing
+        dance live can often make you fall totally in love with this beautiful
+        art form
+      </p>
+      <button type="button">Register Here</button>
+    </>
+  )
+
+  renderRegistrationClosed = () => (
+    <>
+      <img
+        src="https://assets.ccbp.in/frontend/react-js/events-registrations-closed-img.png"
+        alt="registrations closed"
+      />
+      <h1>Registrations Are Closed Now!</h1>
+      <p>Stay tuned. We will reopen the registration soon!</p>
+    </>
+  )
+
+  renderRegistered = () => (
+    <>
+      <img
+        src="https://assets.ccbp.in/frontend/react-js/events-regestered-img.png"
+        alt="registered"
+      />
+      <h1>You have already registered for the event</h1>
+    </>
+  )
+
+  renderToClick = () => (
+    <>
+      <p>Click on an event, to view its registration details</p>
+    </>
+  )
+
+  ActiveEventRegistrationDetails = () => {
+    const {apiStatus} = this.state
+    switch (apiStatus) {
+      case apiStatusConstants.toRegistered:
+        return this.renderToRegister()
+      case apiStatusConstants.registered:
+        return this.renderRegistered()
+      case apiStatusConstants.closed:
+        return this.renderRegistrationClosed()
+      default:
+        return this.renderToClick()
+    }
+  }
+
+  clickTabItem = (id, registrationStatus) => {
+    this.setState({activeEvent: id, apiStatus: registrationStatus})
+  }
+
   render() {
+    const {activeEvent} = this.state
     return (
       <div>
         <div>
           <h1>Events</h1>
           <ul>
-            <EventItem eventsList={eventsList} />
+            {eventsList.map(eachItem => (
+              <EventItem
+                key={eachItem.id}
+                eventDetails={eachItem}
+                isActive={eachItem.id === activeEvent}
+                clickTabItem={this.clickTabItem}
+              />
+            ))}
           </ul>
         </div>
-        <div>
-          <ActiveEventRegistrationDetails />
-        </div>
+        <div>{this.ActiveEventRegistrationDetails()}</div>
       </div>
     )
   }
